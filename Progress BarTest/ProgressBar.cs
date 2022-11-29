@@ -17,9 +17,11 @@ public class ProgressBar : IDisposable, IProgress<double>
     private string currentText = string.Empty;
     private bool disposed = false;
     private int animationIndex = 0;
+    private string startMessage = "Start message";
 
     public ProgressBar()
     {
+
         timer = new Timer(TimerHandler);
 
         // A progress bar is only for temporary display in a console window.
@@ -36,10 +38,12 @@ public class ProgressBar : IDisposable, IProgress<double>
         // Make sure value is in [0..1] range
         value = Math.Max(0, Math.Min(1, value));
         Interlocked.Exchange(ref currentProgress, value);
+
     }
 
     private void TimerHandler(object state)
     {
+
         lock (timer)
         {
             if (disposed) return;
@@ -58,6 +62,7 @@ public class ProgressBar : IDisposable, IProgress<double>
 
     private void UpdateText(string text)
     {
+
         // Get length of common portion
         int commonPrefixLength = 0;
         int commonLength = Math.Min(currentText.Length, text.Length);
@@ -97,7 +102,8 @@ public class ProgressBar : IDisposable, IProgress<double>
             disposed = true;
             UpdateText(string.Empty);
         }
-    }
 
+
+    }
 }
 
