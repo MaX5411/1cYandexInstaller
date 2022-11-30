@@ -61,7 +61,7 @@ namespace Progress_BarTest
 
             Process process = new Process();
             process.StartInfo.FileName = "msiexec.exe";
-            process.StartInfo.Arguments = string.Format("/qb /i \"{0}\" TRANSFORMS=1049.mst", @"D:\temp\setuptc64\1CEnterprise 8 Thin client (x86-64).msi");
+            process.StartInfo.Arguments = string.Format("/qb /i \"{0}\" TRANSFORMS=1049.mst", Path.GetFullPath(msiFilePath));
             process.Start();
             process.WaitForExit();
             
@@ -70,15 +70,16 @@ namespace Progress_BarTest
 
         static async Task Main(string[] args)
         {
+            string fileSettingPath = Path.GetFullPath(@"\\192.168.1.200\Install\yandex64\setting.json");
+            Setting? setting = await GetSettings(fileSettingPath);
+            FileInfo? file = await Response(setting.Token, setting.Link);
+            string folderName = Path.GetFullPath($"{Environment.GetEnvironmentVariable("temp")}\\tmp1C\\");
+            string archivePath = Path.GetFullPath($"{folderName}{file.FileName}");
+            string directoryToExtract = Path.GetFullPath($"{folderName}{file.FileName}".Replace(".zip", ""));
 
             try
             {
-                string fileSettingPath = Path.GetFullPath(@"\\192.168.1.200\Install\yandex64\setting.json");
-                Setting? setting = await GetSettings(fileSettingPath);
-                FileInfo? file = await Response(setting.Token, setting.Link);
-                string folderName = Path.GetFullPath("D:\\temp\\");
-                string archivePath = Path.GetFullPath($"{folderName}{file.FileName}");
-                string directoryToExtract = Path.GetFullPath($"{folderName}{file.FileName}".Replace(".zip", ""));
+                              
                 
                 string? oneSdirectory;
                 if (!setting.IsX86)
@@ -88,7 +89,7 @@ namespace Progress_BarTest
 
 
 
-                      
+                Directory.CreateDirectory(folderName);
                 Console.WriteLine(setting.IsX86.ToString());
                 Console.WriteLine(oneSdirectory);
 
@@ -152,6 +153,9 @@ namespace Progress_BarTest
 
                 MsiInstall(directoryToExtract, setting.IsX86);
 
+                if (Directory.Exists(folderName))
+                    Directory.Delete(folderName, true);
+
                 Console.WriteLine("Введите q для завершения");
 
                 while (Console.Read() != 'q');
@@ -159,6 +163,9 @@ namespace Progress_BarTest
             catch (Exception ex) 
             {
                 Console.WriteLine($"Ошибка: {ex.Message}\n");
+
+                if (Directory.Exists(folderName))
+                    Directory.Delete(folderName, true);
 
                 Console.WriteLine("Введите q для завершения");
                 while (Console.Read() != 'q') ;
