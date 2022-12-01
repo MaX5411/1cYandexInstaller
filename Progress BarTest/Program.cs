@@ -56,8 +56,7 @@ namespace Progress_BarTest
             if (!File.Exists(msiFilePath))
                 throw new Exception($"Установочный фаил {fileMsiName} не найден");
             
-            string arguments = $"/qb /i \"{msiFilePath}\" TRANSFORMS=1049.mst";
-            Console.WriteLine(arguments);
+            
 
             Process process = new Process();
             process.StartInfo.FileName = "msiexec.exe";
@@ -70,16 +69,21 @@ namespace Progress_BarTest
 
         static async Task Main(string[] args)
         {
-            string fileSettingPath = Path.GetFullPath(@"\\192.168.1.200\Install\yandex64\setting.json");
-            Setting? setting = await GetSettings(fileSettingPath);
-            FileInfo? file = await Response(setting.Token, setting.Link);
+            
             string folderName = Path.GetFullPath($"{Environment.GetEnvironmentVariable("temp")}\\tmp1C\\");
-            string archivePath = Path.GetFullPath($"{folderName}{file.FileName}");
-            string directoryToExtract = Path.GetFullPath($"{folderName}{file.FileName}".Replace(".zip", ""));
-
+            
             try
             {
-                              
+                string fileSettingPath = Path.GetFullPath(@"\\192.168.1.200\Install\yandex64\setting.json");
+                Setting? setting = await GetSettings(fileSettingPath);
+                FileInfo? file = await Response(setting.Token, setting.Link);
+                string archivePath = Path.GetFullPath($"{folderName}{file.FileName}");
+                string directoryToExtract = Path.GetFullPath($"{folderName}{file.FileName}".Replace(".zip", ""));
+
+
+                if (!File.Exists(fileSettingPath))
+                    throw new Exception($"Фаил setting.json ненайден");
+
                 
                 string? oneSdirectory;
                 if (!setting.IsX86)
@@ -90,8 +94,8 @@ namespace Progress_BarTest
 
 
                 Directory.CreateDirectory(folderName);
-                Console.WriteLine(setting.IsX86.ToString());
-                Console.WriteLine(oneSdirectory);
+                //Console.WriteLine(setting.IsX86.ToString());
+                //Console.WriteLine(oneSdirectory);
 
 
                 string destinationFilePathToDownload = $"{folderName}{file.FileName}";
@@ -102,7 +106,7 @@ namespace Progress_BarTest
 
 
 
-
+                Console.WriteLine("Идет загрузка не закрывайте окно.");
                 var progress = new ProgressBar();
                 using (var client = new HttpClientDownloadWithProgress(file.DirectLink, destinationFilePathToDownload))
                 {
@@ -151,14 +155,14 @@ namespace Progress_BarTest
                     progresszip.Dispose();
                 }
 
+                Console.WriteLine("Идет установка не закрывайте окно.");
                 MsiInstall(directoryToExtract, setting.IsX86);
 
                 if (Directory.Exists(folderName))
                     Directory.Delete(folderName, true);
 
-                Console.WriteLine("Введите q для завершения");
-
-                while (Console.Read() != 'q');
+                Console.WriteLine("Установка завершена нажмите любую клавишу для завершения");
+                Console.ReadKey();
             }
             catch (Exception ex) 
             {
@@ -167,8 +171,8 @@ namespace Progress_BarTest
                 if (Directory.Exists(folderName))
                     Directory.Delete(folderName, true);
 
-                Console.WriteLine("Введите q для завершения");
-                while (Console.Read() != 'q') ;
+                Console.WriteLine("Нажмите любую клавишу для завершения");
+                Console.ReadKey();
 
             }
 
