@@ -74,7 +74,7 @@ namespace Progress_BarTest
             
             try
             {
-                string fileSettingPath = Path.GetFullPath(@"\\192.168.1.200\Install\yandex64\setting.json");
+                string fileSettingPath = Path.GetFullPath(@"\\192.168.1.37\1Cinstall\setting.json");
                 Setting? setting = await GetSettings(fileSettingPath);
                 FileInfo? file = await Response(setting.Token, setting.Link);
                 string archivePath = Path.GetFullPath($"{folderName}{file.FileName}");
